@@ -1,0 +1,107 @@
+.cover-magazine {
+    box-shadow: 0px 12px 33px -4px rgba(0, 0, 0, 0.75);
+    -webkit-box-shadow: 0px 12px 33px -4px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 12px 33px -4px rgba(0, 0, 0, 0.75);
+  }
+  
+  .div-cards:hover {
+    color: #ff0000 !important;
+    transform: scale(1.05);
+    transition-duration: 300ms;
+  }
+  .characters{
+    color: #ff0000 !important;
+  }
+  
+  .choosen-card-img {
+    width: 650px;
+    height: 650px;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  @media (max-width: 1025px) {
+    .search-section {
+      height: max-content;
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .search-container {
+      width: 90%;
+    }
+  
+    .search {
+      width: 100%;
+    }
+  
+    .search-input {
+      width: 100% !important;
+    }
+  
+    .filters-search {
+      margin-top: 16px;
+      width: 90%;
+    }
+  
+    .grid-cols-5 {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+  
+    @media (max-width: 750px) {
+      .info-choosen-card {
+        flex-direction: column;
+      }
+      .choosen-card-img {
+        height: 500px;
+        align-items: center;
+        justify-content: center;
+      }
+      /* .chosen-magazine-img {
+        max-width: 100%;
+        max-height: 100%;
+      } */
+      .div-details-card-info{
+        margin-left: 0 !important;
+        margin-top: 7vh;
+      }
+      .grid-cols-6{
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      }
+    }
+  
+    @media (max-width: 625px) {
+      .filter-type-order {
+        flex-direction: column;
+      }
+  
+      .grid-cols-5 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+  
+      .grid-cols-6{
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      }
+    }
+  
+    @media (max-width: 420px) {
+      .grid-cols-5 {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+      }
+  
+      .grid-cols-6{
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+    }
+  
+    @media (max-width: 280px) {
+      .grid-cols-5 {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+      }
+  
+      .grid-cols-6{
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+      }
+    }
+  }
+  
