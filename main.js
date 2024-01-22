@@ -66,7 +66,6 @@ const buildURL = (typeSelected, nameSearched, orderSelected, offset, limit, page
             // }
         }
     }
-    console.log("soy el URL que quedo", urlConstruction);
     return urlConstruction
 }
 
@@ -207,7 +206,6 @@ const getPreviousPage = () => {
         offsetCounter -= itemsPerPage;
         limitCounter = Math.min(itemsPerPage, totalItems - offsetCounter);
         pageCounter -= 1;
-        console.log(offsetCounter, limitCounter);
         if (offsetCounter === 0 && limitCounter === 20) {
             just(".btns-first-page").classList.add("disabled")
             just(".btns-prev-pag").classList.add("disabled")
