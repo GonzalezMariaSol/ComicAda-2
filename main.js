@@ -273,27 +273,6 @@ const getLastPage = () => {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const initializeApp = () => {
     //start my app with this values and when the user use the filters will change
     renderComicsCharacters(buildURL("comics", null, "a-z", offsetCounter, limitCounter, pageCounter), typeValue)
