@@ -1,7 +1,6 @@
 //TRASH
 //addEventListener(captura valor) ⮕ buildURL(crea c/parametros el url) ⮕ getMarvelData(devuelve la info bajo ese URL personalizado) ⮕ renderComicsCharacters(muestra lo que se trajo del url)
 
-
 //SECTION UTILITIES
 const just = (selector) => document.querySelector(selector);
 const all = (selector) => document.querySelectorAll(selector);
@@ -14,16 +13,11 @@ const privateKey = "338e6aeedb37d02e56329d2837e6679586d0c53f";
 let totalItems
 
 
-
 //le llegan parametros con los que vamos a estar personalizando el url
 const buildURL = (typeSelected, nameSearched, orderSelected, offset, limit, pageNum) => {
-    console.log("buildURL le esta llegando:", typeSelected, nameSearched, orderSelected, offset, limit, pageNum);
     let urlConstruction = `http://gateway.marvel.com/v1/public/`
-    if(!orderSelected && typeSelected === "comics"){
-        if (orderSelected === "a-z") {
-            console.log("HOLA");
-            urlConstruction += `orderBy=title&`
-        }
+    if (!orderSelected) {
+        orderSelected = "a-z"
     }
     if (typeSelected || nameSearched || orderSelected) {
         if (typeSelected === "comics") {
@@ -35,7 +29,6 @@ const buildURL = (typeSelected, nameSearched, orderSelected, offset, limit, page
                 urlConstruction += `titleStartsWith=${nameSearched}&`
             }
             if (orderSelected === "a-z") {
-                console.log("HOLA");
                 urlConstruction += `orderBy=title&`
             }
             if (orderSelected === "z-a") {
@@ -47,16 +40,12 @@ const buildURL = (typeSelected, nameSearched, orderSelected, offset, limit, page
             if (orderSelected === "oldest") {
                 urlConstruction += `orderBy=focDate&`
             }
-            console.log("el url que quedo en comics", urlConstruction);
-
         } else if (typeSelected === "characters") {
             urlConstruction += `${typeSelected}?${ts}&${publicKey}&${hash}&offset=${offset}&limit=${limit}&`
-            console.log("llegue a caracteres");
             const newestToRemove = just('option[value="newest"]')
             const oldestToRemove = just('option[value="oldest"]')
             if (newestToRemove) just(".order-filter").removeChild(newestToRemove)
             if (oldestToRemove) just(".order-filter").removeChild(oldestToRemove)
-
 
             if (nameSearched) {
                 urlConstruction += `nameStartsWith=${nameSearched}&`
@@ -76,34 +65,30 @@ const buildURL = (typeSelected, nameSearched, orderSelected, offset, limit, page
             //     urlConstruction += `orderBy=modified&`
             // }
         }
-        console.log("el url que quedo en personajes", urlConstruction);
     }
-    console.log("PPPPPPPPPPPPP", urlConstruction);
+    console.log("soy el URL que quedo", urlConstruction);
     return urlConstruction
 }
-
 
 //le llega la inicializacion de una funcion que devuelve un url personalizado
 const getMarvelData = async (URLPersonalizada) => {
     const url = `${URLPersonalizada}`
     const response = await fetch(url)
     const data = await response.json()
-    console.log("marvelData le llego:", data);
     totalItems = data.data.total
     return data
 }
 
-
 const getImage = (data) => {
     return data.thumbnail.path + "/portrait_incredible.jpg";
 }
-
 
 //funcion que se encarga de la primera vista que muestra todos los comics o todos los personajes
 const renderComicsCharacters = async (url, typeSelected) => {
     const cardsData = await getMarvelData(url)
 
     just(".results-cards-comics-characters").innerHTML = ``;
+
     just(".total-finded").innerText = `${cardsData.data.total} RESULTS`;
     just(".current-page-num").innerText = `page ${pageCounter}`
 
@@ -131,16 +116,6 @@ const renderComicsCharacters = async (url, typeSelected) => {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
 
 //SECTION functionality for filters
 let typeValue = "comics"
@@ -195,10 +170,6 @@ const getOrderSelected = (eventOrder) => {
     )
 }
 
-
-
-
-
 //SECTION global functions for pagination
 const itemsPerPage = 20
 let offsetCounter = 0;
@@ -212,6 +183,10 @@ const getFirstPage = () => {
     offsetCounter = 0
     limitCounter = 20
     pageCounter = 1
+    just(".btns-first-page").classList.toggle("disabled")
+    just(".btns-prev-pag").classList.toggle("disabled")
+    just(".btns-next-page").classList.toggle("disabled")
+    just(".btns-last-page").classList.toggle("disabled")
     renderComicsCharacters(
         buildURL(
             typeValue,
@@ -232,6 +207,11 @@ const getPreviousPage = () => {
         offsetCounter -= itemsPerPage;
         limitCounter = Math.min(itemsPerPage, totalItems - offsetCounter);
         pageCounter -= 1;
+        console.log(offsetCounter, limitCounter);
+        if (offsetCounter === 0 && limitCounter === 20) {
+            just(".btns-first-page").classList.add("disabled")
+            just(".btns-prev-pag").classList.add("disabled")
+        }
     }
     renderComicsCharacters(
         buildURL(
@@ -245,20 +225,17 @@ const getPreviousPage = () => {
         typeValue
     )
 }
-
-
-
 
 //*NEXT PAGE
 const getNextPage = () => {
-    //    0         +        20 es menor a 58860
     if (offsetCounter + itemsPerPage < totalItems) {
         offsetCounter += itemsPerPage;
-        limitCounter += Math.min(itemsPerPage, totalItems - offsetCounter);
+        limitCounter = Math.min(itemsPerPage, totalItems - offsetCounter);
         pageCounter += 1
-    } if (offsetCounter > 0 && limitCounter > 20) {
-        just(".btns-first-page").classList.remove("disabled")
-        just(".btns-prev-pag").classList.remove("disabled")
+        if (offsetCounter >= 20 && limitCounter >= 20) {
+            just(".btns-first-page").classList.toggle("disabled")
+            just(".btns-prev-pag").classList.toggle("disabled")
+        }
     }
     renderComicsCharacters(
         buildURL(
@@ -273,26 +250,44 @@ const getNextPage = () => {
     )
 }
 
-
 // //*LAST PAGE
-// const getLastPage = () => {
-//     pageCounter = Math.ceil(totalItems / itemsPerPage);
-//     const startOffset = Math.max(0, (pageCounter - 1) * itemsPerPage);
-//     const endOffset = totalItems;
-//     offsetCounter = startOffset;
-//     limitCounter = endOffset - startOffset;
-//     renderComicsCharacters(
-//         buildURL(
-//             typeValue,
-//             inputValue,
-//             orderValue,
-//             offsetCounter,
-//             limitCounter,
-//             pageCounter
-//         ),
-//         typeValue
-//     )
-// }
+const getLastPage = () => {
+    pageCounter = Math.ceil(totalItems / itemsPerPage);
+    const startOffset = Math.max(0, (pageCounter - 1) * itemsPerPage);
+    const endOffset = totalItems;
+    offsetCounter = startOffset;
+    limitCounter = endOffset - startOffset;
+    just(".btns-first-page").classList.remove("disabled")
+    just(".btns-prev-pag").classList.remove("disabled")
+    just(".btns-next-page").classList.toggle("disabled")
+    just(".btns-last-page").classList.toggle("disabled")
+    renderComicsCharacters(
+        buildURL(
+            typeValue,
+            inputValue,
+            orderValue,
+            offsetCounter,
+            limitCounter,
+            pageCounter
+        ),
+        typeValue
+    )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -329,3 +324,11 @@ const initializeApp = () => {
 
 }
 window.addEventListener("load", initializeApp);
+
+
+
+
+
+
+
+
