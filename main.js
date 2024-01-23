@@ -14,11 +14,22 @@ let totalItems
 
 
 //le llegan parametros con los que vamos a estar personalizando el url
-const buildURL = (typeSelected, nameSearched, orderSelected, offset, limit, pageNum) => {
+const buildURL = (typeSelected, nameSearched, orderSelected, offset, limit, pageNum, id, section) => {
     let urlConstruction = `http://gateway.marvel.com/v1/public/`
+    if (id || section) {
+        if (section === "comics") {
+            urlConstruction += `${section}/${id}/characters?${ts}&${publicKey}&${hash}`
+        }
+        if (section === "characters") {
+            urlConstruction += `${section}/${id}/comics?${ts}&${publicKey}&${hash}`
+        }
+        return urlConstruction
+    }
+
     if (!orderSelected) {
         orderSelected = "a-z"
     }
+
     if (typeSelected || nameSearched || orderSelected) {
         if (typeSelected === "comics") {
             urlConstruction += `${typeSelected}?${ts}&${publicKey}&${hash}&offset=${offset}&limit=${limit}&`
@@ -65,8 +76,8 @@ const buildURL = (typeSelected, nameSearched, orderSelected, offset, limit, page
             //     urlConstruction += `orderBy=modified&`
             // }
         }
+        return urlConstruction
     }
-    return urlConstruction
 }
 
 //le llega la inicializacion de una funcion que devuelve un url personalizado
@@ -96,9 +107,9 @@ const renderComicsCharacters = async (url, typeSelected) => {
         if (typeSelected === "comics") {
             just(".results-cards-comics-characters").innerHTML += `
             <div class="div-cards card-comics text-center" id="${card.id}">
-                <div class="div-img cover-magazine overflow-hidden">
-                    <img src="${getImage(card)}" class="w-full h-full object-contain">
-                </div>
+            <div class="div-img cover-magazine overflow-hidden">
+            <img src="${getImage(card)}" class="w-full h-full object-contain">
+            </div>
                 <p class="titleComic-NameCharacter text-black font-semibold mt-6">${card.title}</p>
             </div>
             `;
@@ -106,14 +117,105 @@ const renderComicsCharacters = async (url, typeSelected) => {
         } else if (typeSelected === "characters") {
             just(".results-cards-comics-characters").innerHTML += `
             <div class="div-cards card-characters bg-black text-center m-4 overflow-hidden" id="${card.id}">
-                <div class="div-img character border-b-4 border-red-600 overflow-hidden">
-                    <img src="${getImage(card)}" class="w-full h-full object-contain">
-                </div>
-                <p class="titleComic-NameCharacter text-white font-semibold mt-6">${card.name}</p>
+            <div class="div-img character border-b-4 border-red-600 overflow-hidden">
+            <img src="${getImage(card)}" class="w-full h-full object-contain">
+            </div>
+            <p class="titleComic-NameCharacter text-white font-semibold mt-6">${card.name}</p>
             </div>
             `;
         }
     }
+    clickOnChoosenCard(cardsData.data.results)
+}
+
+const shapeDate = (stringDate) => {
+    const date = new Date(stringDate);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString().slice(-2);
+    const dateShape = `${day}/${month}/${year}`;
+    return dateShape
+}
+
+
+
+const renderRelatedCards = async (url, length) => {
+    const cardsData = await getMarvelData(url)
+    just(".character-comic-results").innerText = `${length} Results`
+    just(".cards-in-selectedOption-grid").innerHTML += `
+        <div class="character-card" id="${cardsData.data.results[0].id}">
+            <div class="img-character-card border-b-4 border-red-600 overflow-hidden">
+                <img src="${getImage(cardsData.data.results[0])}" class="w-full h-full object-contain">
+            </div>
+            <div class="bg-black flex items-center justify-center h-[18vh]">
+                <p class="character-name text-white text-center">${cardsData.data.results[0].name}</p>
+            </div>
+        </div>
+    `
+}
+
+const renderChoosenCard = async (cards, choosenCardId) => {
+    // console.log("proyecto nuevo", cards);
+    for (const card of cards) {
+        if ('title' in card && card.id === Number(choosenCardId)) {
+            just(".results-cards-comics-characters").classList.add("hidden")
+            just(".total-finded").classList.add("hidden")
+            just(".section-choosen-card").classList.remove("hidden")
+
+            just(".choosen-card-img").innerHTML =
+                `<img class="chosen-magazine-img w-full h-full object-contain" src="${getImage(card)}" alt="magazine cover">`
+            just(".name-title").innerText = `${card.title}`
+            just(".info-comic").innerHTML = `
+              <p class="text-2xl font-semibold mb-2">Published</p>
+              <p class="mb-8">${shapeDate(card.dates[0].date)}</p>
+              <p class="text-2xl font-semibold mb-2">Screenwriter</p>
+              <p class="mb-8">${card.creators.items[0] ? card.creators.items[0].name : ''}</p>
+              `
+            just(".description-text").innerText = `${card.description}`
+
+
+            if (card.characters.items.length > 0) { //esto devuelve 6 
+                console.log(card.characters.items.length);
+                for (const character of card.characters.items) {
+                    const characterUrl = `${character.resourceURI}?${publicKey}&${hash}&${ts}`;
+                    renderRelatedCards(characterUrl, card.characters.items.length);
+                }
+            } else if (card.characters.items.length === 0) {
+                just(".character-comic-results").innerText = `0 Results`
+                just(".cards-in-selectedOption-grid").innerHTML = `
+        <p class="text-3xl font-semibold w-max">No results found</p>
+        `
+            }
+        }
+    }
+}
+
+
+const clickOnChoosenCard = (allCards) => { //trae arr de objetos -cda obj es una carta- 
+    all(".div-cards").forEach((card) => {
+        card.addEventListener("click", (e) => {
+            const clickedCardId = e.target.closest('.div-cards').id;
+            renderChoosenCard(allCards, clickedCardId)
+
+
+
+
+
+
+
+
+
+
+
+            // if (card.title) {
+            //     renderChoosenCard(allCards, clickedCardId, buildURL(null, null, null, null, null, null, card.id, "comics")
+            //     )
+            // } else if (card.name) {
+            //     renderChoosenCard(allCards, clickedCardId, buildURL(null, null, null, null, null, null, card.id, "characters")
+            //     )
+            // }
+        })
+    })
 }
 
 //SECTION functionality for filters
@@ -301,11 +403,3 @@ const initializeApp = () => {
 
 }
 window.addEventListener("load", initializeApp);
-
-
-
-
-
-
-
-
