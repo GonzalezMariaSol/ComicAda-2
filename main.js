@@ -36,7 +36,7 @@ const getMarvelData = async (URLPersonalizada) => {
 
 //le llegan parametros con los que vamos a estar personalizando el url
 const buildURL = (typeSelected, nameSearched, orderSelected, offset, limit, pageNum, id, section) => {
-    let urlConstruction = `https://gateway.marvel.com/v1/public/`
+    let urlConstruction = `http://gateway.marvel.com/v1/public/`
     if (id || section) {
         if (section === "comics") {
             urlConstruction += `${section}/${id}/characters?${ts}&${publicKey}&${hash}`
@@ -230,7 +230,6 @@ const renderChoosenCard = (cards, choosenCardId) => {
                 `<img class="chosen-magazine-img w-full h-full object-contain" src="${getImage(card)}" alt="magazine cover">`
             just(".name-title").innerText = `${card.name}`
             just(".description-text").innerText = `${card.description}`
-            console.log("entre aca estoy");
 
 
             if (card.comics.items.length > 0) { //esto devuelve 6 

@@ -75,6 +75,9 @@
     }
   
     @media (max-width: 625px) {
+      .div-details-card-info{
+        width: fit-content;
+      }
       .filter-type-order {
         flex-direction: column;
       }
